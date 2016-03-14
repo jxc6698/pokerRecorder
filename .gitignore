@@ -1,0 +1,8 @@
+# / mean project root folder
+
+.idea/
+.DS_Store
+data/pokerrecord.txt
+#data/
+
+!*.*
