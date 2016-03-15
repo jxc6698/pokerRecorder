@@ -11,7 +11,7 @@ from PIL import ImageTk, Image
 # file format: win lose deposit withdraw time
 
 
-class myPoker(object):
+class MyPoker(object):
 
     def __init__(self):
         self.money = 0
@@ -87,14 +87,6 @@ class myPoker(object):
 
     def run(self):
 
-        self.loadFile()
-
-        operators = {"deposit": self.deposit,
-                     "win": self.win,
-                     "lose": self.lose,
-                     "withdraw": self.withdraw,
-                     "check": self.check,
-                     "exit": self.exit}
         while 1:
             try:
                 line = sys.stdin.readline()
@@ -104,21 +96,33 @@ class myPoker(object):
 
             if not line:
                 break
-# remove \n character
+            # remove \n character
             line = line[0:-1]
-#            print line
-            words = line.split(" ")
-            cmd = words[0]
+            self.runcommand(line)
+        return
 
-            try:
-                operators[cmd](words, None)
-            except KeyError:
-                print "not support"
-                break
+    def startFrom(self):
+        return
+
+    def runcommand(self, line):
+        operators = {"deposit": self.deposit,
+                 "win": self.win,
+                 "lose": self.lose,
+                 "withdraw": self.withdraw,
+                 "check": self.check,
+                 "exit": self.exit}
+        words = line.split(" ")
+        cmd = words[0]
+
+        try:
+            operators[cmd](words, None)
+        except KeyError:
+            print "not support"
+            # throw exception?
+            return
 
 
     def loadFile(self):
-        win = 0;
         with open("data/pokerrecord.txt", "r") as pfile:
             for line in pfile:
                 if line[-1] == "\n":
@@ -167,10 +171,19 @@ class myPoker(object):
 
 
 class Application(Frame):
-    def __init__(self, master=None):
+
+
+    def __init__(self, master=None, mypoker=None):
         Frame.__init__(self, master)
         self.pack()
         self.createWidgets()
+
+        # can use copy construct function
+        if mypoker==None:
+            self.myPoker = MyPoker()
+        else:
+            self.myPoker = mypoker
+        self.myPoker.loadFile()
 
     def createWidgets(self):
         # self.helloLabel = Label(self, text='PokerRecoder')
@@ -197,9 +210,10 @@ class Application(Frame):
 
         self.quitButton = Button(self, text='Quit', command=self.quit)
         self.quitButton.pack(side="right")
-        self.quitButton = Button(self, text='save', command=self.test)
-        self.quitButton.pack(side="right")
-
+        self.saveButton = Button(self, text='save', command=self.save)
+        self.saveButton.pack(side="right")
+        self.checkButton = Button(self, text="check", command=self.check)
+        self.checkButton.pack(side="right")
 
     def hello(self):
         name = self.nameInput.get() or 'world'
@@ -209,6 +223,14 @@ class Application(Frame):
         self.contentText.insert(INSERT, "insert...")
         self.contentText.insert(END, "end...")
         print self.typeOptionMenuV.get()
+
+    def save(self):
+        type = self.typeOptionMenuV.get()
+        value = self.nameInput.get() or '0'
+        self.myPoker.runcommand(type+" "+value)
+
+    def check(self):
+        self.myPoker.runcommand("check")
 
 
 ################################
@@ -233,9 +255,9 @@ def Logo():
 
 if __name__ == "__main__":
     Logo()
-    myPoker().run()
+    # MyPoker().run()
     app = Application()
     app.master.title('pokerRecoder')
 # main message loop
-#    app.mainloop()
+    app.mainloop()
 
